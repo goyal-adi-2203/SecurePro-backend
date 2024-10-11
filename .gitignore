@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 .env
+pro-cb22e-firebase-adminsdk-1leic-9a3c737f7d.json
+firebase-certs.b64
 
 # Editor directories and files
 .vscode/*
