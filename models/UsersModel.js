@@ -10,7 +10,8 @@ const userSchema = Joi.object({
     gender: Joi.string().optional(),
     access_level: Joi.string().required(),
     mobile_no: Joi.string().optional(),
-    name: Joi.string().optional()
+    name: Joi.string().optional(),
+    profilePicturePath: Joi.string(),
 });
 
 const hashPassword = async (password) => {
