@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/AuthRoutes.js";
+import userRoutes from "./routes/UserRoutes.js";
 // import admin from "./config/firebaseConfig.js";
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 const server = app.listen(PORT, async () => {
 	console.log(`Server is running at http://localhost:${PORT}`);

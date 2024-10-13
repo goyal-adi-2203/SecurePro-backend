@@ -7,6 +7,8 @@ import {
 import bcrypt from "bcrypt";
 import { db } from "../config/firebaseConfig.js";
 
+const loggedInUsers = new Set();
+
 export const signup = async (request, response, next) => {
 	try {
 		const { error } = userSchema.validate(request.body);
@@ -25,8 +27,8 @@ export const signup = async (request, response, next) => {
 			age,
 			email,
 			gender,
-			access_level,
-			mobile_no,
+			accessLevel,
+			mobileNo,
 			name,
 			profilePicturePath,
 		} = request.body;
@@ -35,8 +37,8 @@ export const signup = async (request, response, next) => {
 		const existingUser = await db
 			.collection("users")
 			.where("username", "==", username)
-            .get();
-        // const userDoc = await userRef;
+			.get();
+		// const userDoc = await userRef;
 
 		if (!existingUser.empty) {
 			return response.status(400).send("Username already exists");
@@ -51,13 +53,13 @@ export const signup = async (request, response, next) => {
 			age,
 			email,
 			gender,
-			access_level,
-			mobile_no,
+			accessLevel,
+			mobileNo,
 			name,
 			profilePicturePath,
 		};
-        
-        const userRef = db.collection("users").doc(username);
+
+		const userRef = db.collection("users").doc(username);
 		await userRef.set(newUser);
 
 		const createdUser = await userRef.get();
@@ -71,8 +73,8 @@ export const signup = async (request, response, next) => {
 				age: userData.age,
 				email: userData.email,
 				gender: userData.gender,
-				access_level: userData.access_level,
-				mobile_no: userData.mobile_no,
+				accessLevel: userData.accessLevel,
+				mobileNo: userData.mobileNo,
 				name: userData.name,
 				profilePicturePath: userData.profilePicturePath,
 			},
@@ -88,14 +90,18 @@ export const login = async (request, response, next) => {
 	console.log("from login", request.body);
 
 	if (!username || !password) {
-		return response.status(400).json({data: `Validation error`});
+		return response.status(400).json({ message: `Validation error` });
+	}
+
+	if (loggedInUsers.has(username)) {
+		return response.status(400).json({ message: `User already logged in` });
 	}
 
 	// Fetch the user document from Firestore by username
 	const userRef = await db.collection("users").doc(username);
 
 	if (userRef.empty) {
-		return response.status(400).json({data: `User Not Found`});
+		return response.status(400).json({ message: `User Not Found` });
 	}
 
 	const userDoc = await userRef.get();
@@ -116,8 +122,29 @@ export const login = async (request, response, next) => {
 	}
 
 	const { password: _, ...userWithoutPassword } = userData;
+
+	loggedInUsers.add(username);
+
 	return response.status(200).json({
 		data: userWithoutPassword,
 		message: "Login success",
 	});
+};
+
+export const logout = async (request, response, next) => {
+	// console.log(request);
+
+	const { username } = request.body;
+	console.log("from logout", username);
+
+	if (!username) {
+		return response.status(400).json({ message: `Validation error` });
+	}
+
+	if (!loggedInUsers.has(username)) {
+		return response.status(400).json({ message: `User not logged in` });
+	}
+
+	loggedInUsers.delete(username);
+	return response.status(200).json({ message: `User logged out` });
 };
