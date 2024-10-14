@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/AuthRoutes.js";
 import userRoutes from "./routes/UserRoutes.js";
+import fcmRoutes from "./routes/FcmRoutes.js";
+import deviceRoutes from "./routes/DeviceRoutes.js";
 // import admin from "./config/firebaseConfig.js";
 
 dotenv.config();
@@ -30,6 +32,8 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/fcm", fcmRoutes);
+app.use("/api/device", deviceRoutes);
 
 const server = app.listen(PORT, async () => {
 	console.log(`Server is running at http://localhost:${PORT}`);
