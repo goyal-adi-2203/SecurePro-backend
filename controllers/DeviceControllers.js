@@ -1,26 +1,71 @@
 import { db } from "../config/firebaseConfig.js";
+import {
+	comparePasswords,
+	deviceSchema,
+	hashPassword,
+} from "../models/DeviceModel.js";
 
-export const saveDevice = async (request, response, next) => {
+export const fetchDevices = async (request, response, next) => {
 	try {
-		const { userId, id, name, deviceType } = request.body;
-
-		if (!userId || !id || !name || !deviceType) {
-			return response.status(400).json({ message: `Validation error` });
-		}
+		const { userId } = request.params;
+		console.log("get devices for : ", userId);
 
 		const userRef = db.collection("devices").doc(userId);
+		const userDoc = await userRef.get();
 
-		if (!userRef.exists) {
+		if (!userDoc.exists) {
 			return response.status(404).json({ message: "User not found" });
 		}
 
-		const deviceRef = userRef.collection("devices").doc(id);
+		const deviceRef = userRef.collection("devices");
+		const deviceDoc = await deviceRef.get();
+		const devices = deviceDoc.docs.map((doc) => doc.data());
+
+		// console.log(devices);
+
+		return response
+			.status(200)
+			.json({ devices: devices, message: "Device fetched Successfully" });
+	} catch (error) {
+		console.error(error);
+		response.status(500).json({ message: "Error fetching devices" });
+	}
+};
+
+export const saveDevice = async (request, response, next) => {
+	try {
+		const { userId, ...newDevice } = request.body;
+		console.log(newDevice, userId);
+
+		if (!userId || !newDevice) {
+			return response
+				.status(400)
+				.json({ message: `Validation error missing data` });
+		}
+
+		const { error } = deviceSchema.validate(newDevice);
+		if (error) {
+			return response
+				.status(400)
+				.json({ message: `Validation error device schema` });
+		}
+
+		const userRef = db.collection("devices").doc(userId);
+		const userDoc = await userRef.get();
+
+		if (!userDoc.exists) {
+			return response.status(404).json({ message: "User not found" });
+		}
+
+		const deviceRef = userRef.collection("devices").doc(newDevice.id);
 		const deviceDoc = await deviceRef.get();
 
+		newDevice.password = await hashPassword(newDevice.password);
+
 		if (deviceDoc.exists) {
-			await deviceRef.update({ name, deviceType, id });
+			await deviceRef.update(newDevice);
 		} else {
-			await deviceRef.set({ name, deviceType, id });
+			await deviceRef.set(newDevice);
 		}
 
 		return response
@@ -35,10 +80,9 @@ export const saveDevice = async (request, response, next) => {
 export const saveDeviceIp = async (request, response, next) => {
 	try {
 		const { userId, deviceId, ip } = request.body;
-        console.log(request.body);
-        
+		console.log(request.body);
 
-		if (!userId || !deviceId || !ip ) {
+		if (!userId || !deviceId || !ip) {
 			return response.status(400).json({ message: `Validation error` });
 		}
 
@@ -60,6 +104,52 @@ export const saveDeviceIp = async (request, response, next) => {
 			.json({ message: `Device ip saved successfully` });
 	} catch (error) {
 		console.log({ error });
+		return response.status(500).json({ message: "Internal Server Error" });
+	}
+};
+
+export const checkPassword = async (request, response, next) => {
+	try {
+		const { userId, deviceId } = request.params;
+		const { password } = request.body;
+		// console.log(request.body);
+
+		if (!userId || !deviceId || !password) {
+			return response.status(400).json({ message: `Validation error` });
+		}
+
+		const userRef = db.collection("devices").doc(userId);
+		const userDoc = await userRef.get();
+
+		if (!userDoc.exists) {
+			return response.status(404).json({ message: "User not found" });
+		}
+
+		const deviceRef = userRef.collection("devices").doc(deviceId);
+		const deviceDoc = await deviceRef.get();
+
+		if (!deviceDoc.exists) {
+			return response.status(404).json({ message: "Device not found" });
+		}
+
+		const deviceData = await deviceDoc.data();
+		const hashedPassword = deviceData.password;
+		// console.log(deviceData);
+
+		const check = await comparePasswords(password, hashedPassword);
+		console.log(check);
+
+		if (check) {
+			return response
+				.status(200)
+				.json({ data: check, message: "Correct Password" });
+		} else {
+			return response
+				.status(401)
+				.json({ data: check, message: "Incorrect Password" });
+		}
+	} catch (error) {
+		console.log(error);
 		return response.status(500).json({ message: "Internal Server Error" });
 	}
 };

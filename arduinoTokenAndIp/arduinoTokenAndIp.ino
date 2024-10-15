@@ -7,7 +7,7 @@ const char* ssid = "Airtel_Ram-G";
 const char* password = "password";
 
 // Replace with your server's IP or domain
-String baseUrl = "http://192.168.1.7:8747/api";
+String baseUrl = "https://securepro-backend.onrender.com/api";
 String saveIpUrl = "/device/save-ip";
 String oAuthUrl = "/fcm/get-oauth-token";
 String fcmTokenUrl = "/fcm/get-fcm-token";
@@ -23,7 +23,7 @@ String oAuthToken = "";
 String fcmToken = "";
 
 unsigned long previousMillis = 0;
-unsigned long interval = 10000;
+unsigned long interval = 15000;
 
 void setup() {
   // Start serial communication for debugging
@@ -107,7 +107,15 @@ void getOAuthToken() {
   http.addHeader("Content-Type", "application/json");  // Specify content-type header
   int httpResponseCode2 = http.GET();
   if (httpResponseCode2 > 0) {
-    if (httpResponseCode2 == 200) {
+    int t = 0;
+    while(httpResponseCode2 != 200 && t < 5){
+      httpResponseCode2 = http.GET();
+      t++;
+
+      String response = http.getString();
+      Serial.println("Error response : " + response);
+    }
+    
       String response = http.getString();
       // Serial.println("oAuth response : " + response);
       // oAuthToken =
@@ -125,11 +133,6 @@ void getOAuthToken() {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
       }
-
-    } else {
-      String response = http.getString();
-      Serial.println("Error response : " + response);
-    }
   } else {
     Serial.println("Error receiving data : " + String(httpResponseCode2));
   }
