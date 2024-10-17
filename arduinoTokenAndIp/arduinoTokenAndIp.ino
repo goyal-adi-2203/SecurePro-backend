@@ -17,13 +17,13 @@ String notifUrl = "https://fcm.googleapis.com/v1/projects/pro-cb22e/messages:sen
 
 
 // Device information
-const char* userId = "adi"; 
-const char* deviceId = "device1";
+const String userId = "adi2"; 
+const String deviceId = "device1";
 String oAuthToken = "";
 String fcmToken = "";
 
 unsigned long previousMillis = 0;
-unsigned long interval = 15000;
+unsigned long interval = 5000;
 
 void setup() {
   // Start serial communication for debugging
@@ -192,8 +192,9 @@ void sendNotification() {
     message["token"] = fcmToken;
 
     JsonObject data = message.createNestedObject("data");
-    data["title"] = "Arjun lassan 27";
-    data["body"] = "Your ESP32 triggered an event!";
+    data["title"] = "Arjun is idiot";
+    data["body"] = "said by" + userId;
+    data["userId"] = userId;
 
     JsonObject android = message.createNestedObject("android");
     android["priority"] = "high";
