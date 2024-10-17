@@ -17,7 +17,7 @@ String notifUrl = "https://fcm.googleapis.com/v1/projects/pro-cb22e/messages:sen
 
 
 // Device information
-const char* userId = "adi";
+const char* userId = "adi"; 
 const char* deviceId = "device1";
 String oAuthToken = "";
 String fcmToken = "";
@@ -175,7 +175,6 @@ void getFcmToken(String jsonData) {
 
   http.end();
 }
-
 
 void sendNotification() {
   if (WiFi.status() == WL_CONNECTED) {

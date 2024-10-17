@@ -21,7 +21,7 @@ export const fetchDevices = async (request, response, next) => {
 		const deviceDoc = await deviceRef.get();
 		const devices = deviceDoc.docs.map((doc) => doc.data());
 
-		// console.log(devices);
+		console.log(devices);
 
 		return response
 			.status(200)
@@ -34,7 +34,8 @@ export const fetchDevices = async (request, response, next) => {
 
 export const saveDevice = async (request, response, next) => {
 	try {
-		const { userId, ...newDevice } = request.body;
+		const { userId } = request.params;
+		const newDevice = request.body;
 		console.log(newDevice, userId);
 
 		if (!userId || !newDevice) {
@@ -45,9 +46,7 @@ export const saveDevice = async (request, response, next) => {
 
 		const { error } = deviceSchema.validate(newDevice);
 		if (error) {
-			return response
-				.status(400)
-				.json({ message: `Validation error device schema` });
+			return response.status(400).json({ message: `${error}` });
 		}
 
 		const userRef = db.collection("devices").doc(userId);
@@ -64,13 +63,15 @@ export const saveDevice = async (request, response, next) => {
 
 		if (deviceDoc.exists) {
 			await deviceRef.update(newDevice);
+			return response
+				.status(200)
+				.json({ message: `Device Updated successfully` });
 		} else {
 			await deviceRef.set(newDevice);
+			return response
+				.status(201)
+				.json({ message: `Device created successfully` });
 		}
-
-		return response
-			.status(200)
-			.json({ message: `Device saved successfully` });
 	} catch (error) {
 		console.log({ error });
 		return response.status(500).json({ message: "Internal Server Error" });
