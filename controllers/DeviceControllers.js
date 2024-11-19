@@ -5,6 +5,8 @@ import {
 	deviceSchema,
 	hashPassword,
 } from "../models/DeviceModel.js";
+import { startNgrokTunnel } from "../utils/tunnels.js";
+
 
 
 export const fetchDevices = async (request, response, next) => {
@@ -143,10 +145,10 @@ export const checkPassword = async (request, response, next) => {
 		console.log(check);
 
 		if (check) {
-            const publicUrl = deviceData.publicUrl;
+            const deviceIp = deviceData.ip;
+            const port = 80;
 
-            const baseUrl = "http://" + deviceData.ip;
-			console.log(baseUrl);
+            const publicUrl = startNgrokTunnel(deviceIp, port);
 
 			const data = { data: check, message: "Correct Password" };
 
