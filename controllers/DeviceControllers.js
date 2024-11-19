@@ -143,13 +143,19 @@ export const checkPassword = async (request, response, next) => {
 		console.log(check);
 
 		if (check) {
+            const publicUrl = deviceData.publicUrl;
+
             const baseUrl = "http://" + deviceData.ip;
 			console.log(baseUrl);
 
 			const data = { data: check, message: "Correct Password" };
 
 			try {
-				const deviceResponse = await axios.post(baseUrl, data, {
+				// const deviceResponse = await axios.post(baseUrl, data, {
+				// 	headers: { "Content-Type": "application/json" },
+				// });
+
+                const deviceResponse = await axios.post(publicUrl, data, {
 					headers: { "Content-Type": "application/json" },
 				});
 
