@@ -188,7 +188,7 @@ export const checkPassword = async (request, response, next) => {
 
 				const deviceResponse = await axios.post(publicUrl, data, {
 					headers: { "Content-Type": "application/json" },
-                    timeout: 5000,
+                    // timeout: 5000,
 				});
 
 				console.log("Response from esp", deviceResponse.data);
