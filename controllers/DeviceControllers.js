@@ -1,9 +1,11 @@
+import axios from "axios";
 import { db } from "../config/firebaseConfig.js";
 import {
 	comparePasswords,
 	deviceSchema,
 	hashPassword,
 } from "../models/DeviceModel.js";
+
 
 export const fetchDevices = async (request, response, next) => {
 	try {
@@ -141,6 +143,22 @@ export const checkPassword = async (request, response, next) => {
 		console.log(check);
 
 		if (check) {
+            const baseUrl = "http://" + deviceData.ip;
+			console.log(baseUrl);
+
+			const data = { data: check, message: "Correct Password" };
+
+			try {
+				const deviceResponse = await axios.post(baseUrl, data, {
+					headers: { "Content-Type": "application/json" },
+				});
+
+				console.log("Response from esp", deviceResponse.data);
+			} catch (error) {
+				console.error("Error sending data : ", error.message);
+                return response.status(400).json({message: "Please Try Again"})
+			}
+            
 			return response
 				.status(200)
 				.json({ data: check, message: "Correct Password" });

@@ -17,7 +17,9 @@ export const signup = async (request, response, next) => {
 		if (error) {
 			return response
 				.status(400)
-				.json({message: `Validation error: ${error.details[0].message}`});
+				.json({
+					message: `Validation error: ${error.details[0].message}`,
+				});
 		}
 
 		const {
@@ -41,7 +43,9 @@ export const signup = async (request, response, next) => {
 		// const userDoc = await userRef;
 
 		if (!existingUser.empty) {
-			return response.status(400).json({message: "Username already exists"});
+			return response
+				.status(400)
+				.json({ message: "Username already exists" });
 		}
 
 		const hashedPassword = await hashPassword(password);
@@ -62,8 +66,8 @@ export const signup = async (request, response, next) => {
 		const userRef = db.collection("users").doc(username);
 		await userRef.set(newUser);
 
-        const deviceRef = db.collection("devices").doc(username);
-        await deviceRef.set({token: ""});
+		const deviceRef = db.collection("devices").doc(username);
+		await deviceRef.set({ token: "" });
 
 		const createdUser = await userRef.get();
 		const userData = createdUser.data();
@@ -84,7 +88,7 @@ export const signup = async (request, response, next) => {
 		});
 	} catch (error) {
 		console.log({ error });
-		return response.status(500).json({message: "Internal Server Error"});
+		return response.status(500).json({ message: "Internal Server Error" });
 	}
 };
 
@@ -150,4 +154,16 @@ export const logout = async (request, response, next) => {
 
 	loggedInUsers.delete(username);
 	return response.status(200).json({ message: `User logged out` });
+};
+
+export const userList = async (request, response, next) => {
+	loggedInUsers.forEach((val) => {
+		console.log(val);
+	});
+
+    const resArray = Array.from(loggedInUsers);
+
+	return response
+		.status(200)
+		.json({ data: resArray, message: "Logged in users" });
 };

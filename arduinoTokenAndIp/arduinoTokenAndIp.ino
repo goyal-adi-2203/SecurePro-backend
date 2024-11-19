@@ -64,12 +64,10 @@ void setup() {
 void loop() {
   // No code needed for the loop
   unsigned long currentMillis = millis();
-
   if(currentMillis - previousMillis >= interval){
     previousMillis = currentMillis;
     sendNotification();
   }
-
 }
 
 
