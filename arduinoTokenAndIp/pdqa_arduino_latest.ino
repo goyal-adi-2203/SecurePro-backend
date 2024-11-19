@@ -132,10 +132,25 @@ void setup()
         delay(300);
     }
     Serial.println();
-    Serial.print("Connected with IP: ");
+
+    Serial.print("Connected with local IP: ");
     String localIp = WiFi.localIP().toString();
     Serial.println(WiFi.localIP());
     Serial.println();
+
+    // Fetch public IP
+    // HTTPClient http;
+    // http.begin("http://api.ipify.org"); // Service that returns public IP
+    // int httpCode = http.GET();
+
+    // if (httpCode > 0) {
+    //     publicIP = http.getString();
+    //     Serial.println("Public IP: " + publicIP);
+    // } else {
+    //     Serial.println("Failed to fetch public IP");
+    // }
+
+    // http.end();
 
     // Prepare the data to be sent to the server
     // Create a JSON object

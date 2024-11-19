@@ -4,15 +4,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const ngrokToken = process.env.NGROK_AUTH_TOKEN;
-
+const ngrokBase64 = process.env.NGROK_AUTH_TOKEN;
+const ngrokToken = Buffer.from(ngrokBase64, "base64").toString("utf-8");
 // Function to start the ngrok tunnel dynamically
 export async function startNgrokTunnel(deviceIp, port) {
 	try {
 		// Create a tunnel to the device IP and port
 		const url = await ngrok.connect({
 			addr: `${deviceIp}:${port}`, // Format: device IP and port
-			subdomain: "unique-subdomain", // Optional: specify a custom subdomain (if you have ngrok pro)
 			authtoken: ngrokToken, // Optional: specify your ngrok auth token if using Pro version
 		});
 
