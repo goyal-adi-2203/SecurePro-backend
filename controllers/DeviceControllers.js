@@ -64,7 +64,7 @@ export const saveDevice = async (request, response, next) => {
 		newDevice.password = await hashPassword(newDevice.password);
 
 		if (deviceDoc.exists) {
-			await deviceRef.update({...newDevice, timestamp: Date.now()});
+			await deviceRef.update({ ...newDevice, timestamp: Date.now() });
 			return response
 				.status(200)
 				.json({ message: `Device Updated successfully` });
@@ -146,40 +146,9 @@ export const checkPassword = async (request, response, next) => {
 			const deviceIp = deviceData.ip;
 			const port = 80;
 
-			let { publicUrl, timestamp } = deviceData || {};
-
-			if (publicUrl && timestamp) {
-				const currentTime = Date.now();
-				const urlAge = (currentTime - timestamp) / (1000 * 60 * 60); // Age in hours
-
-				// If the URL is less than 5 hours old, return the existing URL
-				if (urlAge < 5) {
-					console.log(
-						`Existing ngrok URL (less than 5 hours old): ${publicUrl}`
-					);
-				} else {
-					publicUrl = await startNgrokTunnel(deviceIp, port);
-					await deviceRef.set(
-						{
-							publicUrl,
-							timestamp: Date.now(), // Store current timestamp in milliseconds
-						},
-						{ merge: true } // Merge with existing data instead of overwriting
-					);
-				}
-			} else {
-				publicUrl = await startNgrokTunnel(deviceIp, port);
-				await deviceRef.set(
-					{
-						publicUrl,
-						timestamp: Date.now(), // Store current timestamp in milliseconds
-					},
-					{ merge: true } // Merge with existing data instead of overwriting
-				);
-			}
-
+			const publicUrl = await startNgrokTunnel(deviceIp, port);
 			const data = { data: check, message: "Correct Password" };
-            console.log(publicUrl);
+			console.log(publicUrl);
 
 			try {
 				// const deviceResponse = await axios.post(baseUrl, data, {
@@ -188,7 +157,7 @@ export const checkPassword = async (request, response, next) => {
 
 				const deviceResponse = await axios.post(publicUrl, data, {
 					headers: { "Content-Type": "application/json" },
-                    // timeout: 5000,
+					// timeout: 5000,
 				});
 
 				console.log("Response from esp", deviceResponse.data);
