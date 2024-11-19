@@ -146,7 +146,7 @@ export const checkPassword = async (request, response, next) => {
 			const deviceIp = deviceData.ip;
 			const port = 80;
 
-			const publicUrl = await startNgrokTunnel(deviceIp, port);
+			const publicUrl = deviceData.publicUrl ? deviceData.publicUrl : await startNgrokTunnel(deviceIp, port);
 			const data = { data: check, message: "Correct Password" };
 			console.log(publicUrl);
 
